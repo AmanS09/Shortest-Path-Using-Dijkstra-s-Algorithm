@@ -4,7 +4,6 @@ let cnt = 0;
 let dist;
 
 
-// It is called when user starts adding edges by clicking on button given
 const addEdges = () => {
   if (cnt < 2) {
     alert("Create atleast two nodes to add an edge");
@@ -17,7 +16,7 @@ const addEdges = () => {
 
 
   
-  // Initializing array for adjacency matrix representation
+
   dist = new Array(cnt + 1)
     .fill(Infinity)
     .map(() => new Array(cnt + 1).fill(Infinity));
@@ -25,34 +24,32 @@ const addEdges = () => {
 
 
 
-// Temporary array to store clicked elements to make an edge between the(max size =2)
+
 let arr = [];
 
 const appendBlock = (x, y) => {
   document.querySelector(".reset-btn").disabled = false;
   document.querySelector(".click-instruction").style.display = "none";
-  // Creating a node
+
   const block = document.createElement("div");
   block.classList.add("block");
   block.style.top = `${y}px`;
   block.style.left = `${x}px`;
   block.style.transform = `translate(-50%,-50%)`;
   block.id = cnt;
-
+0
   block.innerText = cnt++;
 
-  // Click event for node
+
   block.addEventListener("click", (e) => {
-    // Prevent node upon node
+   
     e.stopPropagation() || (window.event.cancelBubble = "true");
 
-    // If state variable addEdge is false, can't start adding edges
     if (!addEdge) return;
 
     block.style.backgroundColor = "coral";
     arr.push(block.id);
 
-    // When two elements are push, draw a edge and empty the array
     if (arr.length === 2) {
       drawUsingId(arr);
       arr = [];
@@ -61,7 +58,7 @@ const appendBlock = (x, y) => {
   blocks.appendChild(block);
 };
 
-// Allow creating nodes on screen by clicking
+
 blocks.addEventListener("click", (e) => {
   if (addEdge) return;
   if (cnt > 12) {
@@ -72,9 +69,9 @@ blocks.addEventListener("click", (e) => {
   appendBlock(e.x, e.y);
 });
 
-// Function to draw a line between nodes
+
 const drawLine = (x1, y1, x2, y2, ar) => {
-  // prevent multiple edges for same couple of nodes
+
   if (dist[Number(ar[0])][Number(ar[1])] !== Infinity) {
     document.getElementById(arr[0]).style.backgroundColor = "#333";
     document.getElementById(arr[1]).style.backgroundColor = "#333";
@@ -82,15 +79,14 @@ const drawLine = (x1, y1, x2, y2, ar) => {
   }
 
   console.log(ar);
-  // Length of line
+
   const len = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
   const slope = x2 - x1 ? (y2 - y1) / (x2 - x1) : y2 > y1 ? 90 : -90;
 
-  // Adding length to distance array
   dist[Number(ar[0])][Number(ar[1])] = Math.round(len / 10);
   dist[Number(ar[1])][Number(ar[0])] = Math.round(len / 10);
 
-  // Drawing line
+
   const line = document.createElement("div");
   line.id =
     Number(ar[0]) < Number(ar[1])
@@ -101,7 +97,6 @@ const drawLine = (x1, y1, x2, y2, ar) => {
   line.style.left = `${x1}px`;
   line.style.top = `${y1}px`;
 
-  // Edge weight
   let p = document.createElement("p");
   p.classList.add("edge-weight");
   p.innerText = Math.round(len / 10);
@@ -114,7 +109,7 @@ const drawLine = (x1, y1, x2, y2, ar) => {
     }
     n1 = Number(p.closest(".line").id.split("-")[1]);
     n2 = Number(p.closest(".line").id.split("-")[2]);
-    // console.log(p.closest('.line'), e.target.innerText, n1, n2);
+ 
     dist[n1][n2] = Number(e.target.innerText);
     dist[n2][n1] = Number(e.target.innerText);
   });
@@ -132,7 +127,7 @@ const drawLine = (x1, y1, x2, y2, ar) => {
   document.getElementById(arr[1]).style.backgroundColor = "#333";
 };
 
-// Function to get (x, y) coordinates of clicked node
+
 const drawUsingId = (ar) => {
   if (ar[0] === ar[1]) {
     document.getElementById(arr[0]).style.backgroundColor = "#333";
@@ -146,7 +141,6 @@ const drawUsingId = (ar) => {
   drawLine(x1, y1, x2, y2, ar);
 };
 
-// Function to find shortest path from given source to all other nodes
 const findShortestPath = (el) => {
   let visited = [];
   let unvisited = [];
@@ -158,13 +152,12 @@ const findShortestPath = (el) => {
     return;
   }
   document.getElementById(source).style.backgroundColor = "grey";
-  // console.log(source);
+
   let parent = [];
   parent[source] = -1;
   visited = [];
   for (i = 0; i < cnt; i++) unvisited.push(i);
 
-  // Array containing cost of reaching i(th) node from source
   let cost = [];
   for (i = 0; i < cnt; i++) {
     i === source
@@ -175,28 +168,22 @@ const findShortestPath = (el) => {
   }
   cost[source] = 0;
 
-  // Array which will contain final minimum cost
   let minCost = [];
   minCost[source] = 0;
 
-  // Repeating until all edges are visited
   while (unvisited.length) {
     let mini = cost.indexOf(Math.min(...cost));
-    // console.log("draw", visited[visited.length-1],mini);
     visited.push(mini);
     unvisited.splice(unvisited.indexOf(mini), 1);
 
-    // Relaxation of unvisited edges
     for (j of unvisited) {
       if (j === mini) continue;
-      // console.log(mini, j);
       if (cost[j] > dist[mini][j] + cost[mini]) {
         minCost[j] = dist[mini][j] + cost[mini];
         cost[j] = dist[mini][j] + cost[mini];
         parent[j] = mini;
       } else {
         minCost[j] = cost[j];
-        // parent[j] = source;
       }
     }
     cost[mini] = Infinity;
@@ -204,7 +191,6 @@ const findShortestPath = (el) => {
   console.log("Minimum Cost", minCost);
   for (i = 0; i < cnt; i++)
     parent[i] === undefined ? (parent[i] = source) : null;
-  // console.log(parent);
   indicatePath(parent, source);
 };
 
@@ -225,7 +211,6 @@ const printPath = async (parent, j, el_p) => {
   document.getElementsByClassName("path")[0].style.padding = "1rem";
   document.getElementsByClassName("path")[0].appendChild(el_p);
 
-  // console.log(j,parent[j]);
 
   if (j < parent[j]) {
     let tmp = document.getElementById(`line-${j}-${parent[j]}`);
